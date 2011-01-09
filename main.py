@@ -57,13 +57,15 @@ class UserHandler(BaseHandler):
     """Show a given user's snippets."""
     
     def authed_get(self, user):
-        desired_user = user_from_email(self.request.get('user'))
-        snippets = user.snippets_set
+        desired_user = user_from_email(self.request.get('email'))
+        snippets = user.snippet_set
+        snippets = sorted(snippets, key=lambda s: s.date, reverse=True)
         
         self.response.headers['Content-Type'] = 'text/html'
         template_values = {
                            'current_user' : user,
-                           'user': desired_user
+                           'user': desired_user,
+                           'snippets': snippets
                            }
 
         path = os.path.join(os.path.dirname(__file__), 'templates/user.html')
@@ -81,6 +83,16 @@ class MainHandler(BaseHandler):
     """Show list of all users and acting user's settings."""
     
     def authed_get(self, user):
+        # Update enabled state if requested
+        set_enabled = self.request.get('setenabled')
+        if set_enabled == '1':
+            user.enabled = True
+            user.put()
+        elif set_enabled == '0':
+            user.enabled = False
+            user.put()
+            
+        # Fetch user list and display
         all_users = User.all().fetch(500)
         self.response.headers['Content-Type'] = 'text/html'
         template_values = {

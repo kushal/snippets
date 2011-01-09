@@ -2,13 +2,15 @@
 <html>
 <head>
   <style>
-    body { font-family: Helvetica, sans-serif; font-size: 83% }
+    body { font-family: Courier New, monospaced; font-size: 83% }
+    a.title { color: #CCC; text-decoration: none }
+    a.title:hover { text-decoration: underline }
   </style>
-   <title>{% block title %}Snippets{% endblock %}</title>
+   <title>{% block title %}snippets{% endblock %}</title>
 </head>
 
 <body>
-  <h2>Snippets</h2>
+  <h1><a class="title" href="/">snippets</a></h2>
   {% block body %}
   {% endblock %}
 </body>

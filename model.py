@@ -6,7 +6,7 @@ from google.appengine.ext import db
 class User(db.Model):
     user = db.UserProperty()
     following = db.ListProperty(db.Key)
-    enabled = db.BooleanProperty()
+    enabled = db.BooleanProperty(default=True)
     
 class Snippet(db.Model):
     user = db.ReferenceProperty(User)
@@ -14,7 +14,6 @@ class Snippet(db.Model):
     date = db.DateProperty()
     
 def user_from_email(email):
-    logging.info(email)
     return User.all().filter("user =", users.User(email)).fetch(1)[0]
     
 def create_or_replace_snippet(user, text, date):

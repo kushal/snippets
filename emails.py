@@ -1,37 +1,48 @@
+import logging
+
 from google.appengine.api import mail
 from google.appengine.api import taskqueue
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
+from dateutil import *
+from model import *
+
+REMINDER = """
+Hey nerd,
+
+The kids want to know what you're up to. Don't leave 'em hanging.
+"""
+
 class ReminderEmail(webapp.RequestHandler):
+    def __send_mail(self, recipient):
+        mail.send_mail(sender="snippets <snippets@fssnippets.appspotmail.com>",
+                       to=recipient,
+                       subject="Snippet time!",
+                       body=REMINDER)
+
     def get(self):
-        pass
-        taskqueue.add(url='/onereminder', params={'user': key})
+        all_users = User.all().filter("enabled =", True).fetch(500)
+        for user in all_users:
+            # TODO: Check if one has already been submitted for this period.
+            self.__send_mail(user.user.email())
 
 class DigestEmail(webapp.RequestHandler):
+    def __send_mail(self, recipient, body):
+        mail.send_mail(sender="snippets <snippets@fssnippets.appspotmail.com>",
+                       to=recipient,
+                       subject="Snippet delivery!",
+                       body=body)
+
+    def __snippet_to_text(self, snippet):
+        divider = '-' * 30
+        return '%s\n%s\n%s' % (snippet.user.user.email(), divider, snippet.text)
+    
     def get(self):
-        # Find all users and add to queue
-        taskqueue.add(url='/onedigest', params={'user': key})
-
-class OneReminder(webapp.RequestHandler):
-    def post(self):
-        key = self.request.get('user')
-        mail.send_mail(sender="Example.com Support <support@example.com>",
-              to="Albert Johnson <Albert.Johnson@example.com>",
-              subject="Your account has been approved",
-              body="""
-Dear Albert:
-
-Your example.com account has been approved.  You can now visit
-http://www.example.com/ and sign in using your Google Account to
-access new features.
-
-Please let us know if you have any questions.
-
-The example.com Team
-""")
-
-class OneDigest(webapp.RequestHandler):
-    def post(self):
-        key = self.request.get('user')
-
+        all_users = User.all().filter("enabled =", True).fetch(500)
+        d = date_for_retrieval()
+        all_snippets = Snippet.all().filter("date =", d).fetch(500)
+        # TODO: Build custom emails
+        body = '\n\n\n'.join([self.__snippet_to_text(s) for s in all_snippets])
+        for user in all_users:
+            self.__send_mail(user.user.email(), body)
