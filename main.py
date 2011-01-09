@@ -16,42 +16,81 @@
 #
 import os
 
+from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp import util
 
 from emails import *
-from model import *
+from model import *    
 
-class UserHandler(webapp.RequestHandler):
-    def get(self):
-        pass
 
-class FollowHandler(webapp.RequestHandler):
-    def post(self):
-        pass
-
-class ReceiveEmail(webapp.RequestHandler):
-    def post(self):
-        pass
-
-class MainHandler(webapp.RequestHandler):
-  def get(self):
+class BaseHandler(webapp.RequestHandler):
+    """Obtain user object and pass it into handling logic in subclass."""
+    
+    def get_user(self):
         user = users.get_current_user()
-
-        if user:
-            self.response.headers['Content-Type'] = 'text/plain'
-            self.response.out.write('Hello, ' + user.nickname())
-            template_values = {
-            'greetings': greetings,
-            'url': url,
-            'url_linktext': url_linktext,
-            }
-
-            path = os.path.join(os.path.dirname(__file__), 'index.html')
-            self.response.out.write(template.render(path, template_values))
-        else:
+        if not user:
             self.redirect(users.create_login_url(self.request.uri))
+            return None
+    
+        userObj = User.all().filter("user =", user).fetch(1)
+        if not userObj:
+            userObj = User(user=user)
+            userObj.put()
+        else:
+            userObj = userObj[0]
+        return userObj
+
+    def get(self):
+        user = self.get_user()
+        if user:
+            self.authed_get(user)
+            
+    def post(self):
+        user = self.get_user()
+        if user:
+            self.authed_post(user)
+
+
+class UserHandler(BaseHandler):
+    """Show a given user's snippets."""
+    
+    def authed_get(self, user):
+        desired_user = user_from_email(self.request.get('user'))
+        snippets = user.snippets_set
+        
+        self.response.headers['Content-Type'] = 'text/html'
+        template_values = {
+                           'current_user' : user,
+                           'user': desired_user
+                           }
+
+        path = os.path.join(os.path.dirname(__file__), 'templates/user.html')
+        self.response.out.write(template.render(path, template_values))
+
+
+class FollowHandler(BaseHandler):
+    """Change acting user's follow relationship with another user."""
+    
+    def authed_post(self, user):
+        pass
+
+
+class MainHandler(BaseHandler):
+    """Show list of all users and acting user's settings."""
+    
+    def authed_get(self, user):
+        all_users = User.all().fetch(500)
+        self.response.headers['Content-Type'] = 'text/html'
+        template_values = {
+                           'current_user' : user,
+                           'all_users': all_users
+                           }
+
+        path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
+        self.response.out.write(template.render(path, template_values))            
+
 
 def main():
     application = webapp.WSGIApplication(
@@ -59,10 +98,7 @@ def main():
                                           ('/user', UserHandler),
                                           ('/follow', FollowHandler),
                                           ('/reminderemail', ReminderEmail),
-                                          ('/digestemail', DigestEmail),
-                                          ('/onereminder', OneReminder),
-                                          ('/onedigest', OneDigest),
-                                          ('/_ah/mail/snippet@fssnippets.appspotmail.com', ReceiveEmail)],
+                                          ('/digestemail', DigestEmail)],
                                           debug=True)
     util.run_wsgi_app(application)
 

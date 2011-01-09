@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <b><a href="/user?email={{ current_user.user.email }}">{{ current_user.user.email }}</a></b>
+    <br/>
+    Currently {{ current_user.enabled }}
+    
+    <h3>Users</h3>
+    {% for user in all_users %}
+      <a href="/user?email={{ user.email }}">{{ user.email }}</a>
+      <br/>
+    {% endfor %}
+
+    
+{% endblock %}

@@ -4,12 +4,11 @@ runtime: python
 api_version: 1
 
 handlers:
+- url: /_ah/mail/snippets@.*fssnippets\.appspotmail\.com 
+  script: receive_email.py
+
 - url: .*
   script: main.py
-
-- url: /_ah/mail/snippet@.*app-id\.appspotmail\.com 
-  script: receive_email.py 
-  login: admin
     
 inbound_services:
 - mail
