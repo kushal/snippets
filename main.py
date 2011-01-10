@@ -87,12 +87,12 @@ class FollowHandler(BaseHandler):
     @authenticated
     def get(self):
         user = self.get_user()
-        tag = self.request.get('tag')
+        desired_tag = self.request.get('tag')
         desired_user = self.request.get('user')
         continue_url = self.request.get('continue')
         
-        if tag and (tag not in user.tags_following):
-            user.tags_following.append(tag)
+        if desired_tag and (desired_tag not in user.tags_following):
+            user.tags_following.append(desired_tag)
             user.put()
         if desired_user and (desired_user not in user.following):
             user.following.append(desired_user)
@@ -106,12 +106,12 @@ class UnfollowHandler(BaseHandler):
     @authenticated
     def get(self):
         user = self.get_user()
-        tag = self.request.get('tag')
+        desired_tag = self.request.get('tag')
         desired_user = self.request.get('user')
         continue_url = self.request.get('continue')
         
-        if tag and (tag in user.tags_following):
-            user.tags_following.remove(tag)
+        if desired_tag and (desired_tag in user.tags_following):
+            user.tags_following.remove(desired_tag)
             user.put()
         if desired_user and (desired_user in user.following):
             user.following.remove(desired_user)
@@ -125,7 +125,7 @@ class TagHandler(BaseHandler):
     @authenticated
     def get(self, tag):
         user = self.get_user()
-        d = date_for_new_snippet()
+        d = date_for_retrieval()
         all_snippets = Snippet.all().filter("date =", d).fetch(500)
         if (tag != 'all'):
             all_snippets = [s for s in all_snippets if tag in s.user.tags]
