@@ -13,7 +13,7 @@ class ReceiveEmail(InboundMailHandler):
     """Receive a snippet email and create or replace snippet for this week."""
 
     def receive(self, message):
-        user = user_from_email(message.sender)               
+        user = user_from_email(email.utils.parseaddr(message.sender)[1])               
         for content_type, body in message.bodies('text/plain'):        
             create_or_replace_snippet(user, body.decode(), date_for_new_snippet())
 

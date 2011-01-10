@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block body %}
-    <h2>{{ user.user.email }}</h2>
+    <h2>{{ user.email }}</h2>
 
     {% for snippet in snippets %}
       <b>{{ snippet.date }}</b><br/>

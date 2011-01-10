@@ -25,7 +25,7 @@ class ReminderEmail(webapp.RequestHandler):
         all_users = User.all().filter("enabled =", True).fetch(500)
         for user in all_users:
             # TODO: Check if one has already been submitted for this period.
-            self.__send_mail(user.user.email())
+            self.__send_mail(user.email)
 
 class DigestEmail(webapp.RequestHandler):
     def __send_mail(self, recipient, body):
@@ -36,7 +36,7 @@ class DigestEmail(webapp.RequestHandler):
 
     def __snippet_to_text(self, snippet):
         divider = '-' * 30
-        return '%s\n%s\n%s' % (snippet.user.user.email(), divider, snippet.text)
+        return '%s\n%s\n%s' % (snippet.user.email, divider, snippet.text)
     
     def get(self):
         all_users = User.all().filter("enabled =", True).fetch(500)
@@ -45,4 +45,4 @@ class DigestEmail(webapp.RequestHandler):
         # TODO: Build custom emails
         body = '\n\n\n'.join([self.__snippet_to_text(s) for s in all_snippets])
         for user in all_users:
-            self.__send_mail(user.user.email(), body)
+            self.__send_mail(user.email, body)

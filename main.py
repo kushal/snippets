@@ -34,9 +34,9 @@ class BaseHandler(webapp.RequestHandler):
             self.redirect(users.create_login_url(self.request.uri))
             return None
     
-        userObj = User.all().filter("user =", user).fetch(1)
+        userObj = User.all().filter("email =", user.email()).fetch(1)
         if not userObj:
-            userObj = User(user=user)
+            userObj = User(email=user.email())
             userObj.put()
         else:
             userObj = userObj[0]
@@ -72,13 +72,6 @@ class UserHandler(BaseHandler):
         self.response.out.write(template.render(path, template_values))
 
 
-class FollowHandler(BaseHandler):
-    """Change acting user's follow relationship with another user."""
-    
-    def authed_post(self, user):
-        pass
-
-
 class MainHandler(BaseHandler):
     """Show list of all users and acting user's settings."""
     
@@ -108,7 +101,6 @@ def main():
     application = webapp.WSGIApplication(
                                          [('/', MainHandler),
                                           ('/user', UserHandler),
-                                          ('/follow', FollowHandler),
                                           ('/reminderemail', ReminderEmail),
                                           ('/digestemail', DigestEmail)],
                                           debug=True)
