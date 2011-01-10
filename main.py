@@ -165,10 +165,15 @@ class MainHandler(BaseHandler):
         raw_users = User.all().order('email').fetch(500)
         following = compute_following(user, raw_users)
         all_users = [(u, u.email in following) for u in raw_users]
-
+        all_tags = set()
+        for u in raw_users:
+            all_tags.update(u.tags)
+        all_tags = [(t, t in user.tags_following) for t in all_tags]
+        
         template_values = {
                            'current_user' : user,
-                           'all_users': all_users                           
+                           'all_users': all_users,
+                           'all_tags': all_tags                           
                            }
         self.render('index', template_values)
 
