@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 
 {% block body %}
-    <h2><a href="/user?email={{ current_user.email }}">{{ current_user.email }}</a></h2>
+    <h2><a href="/user/{{ current_user.email }}">{{ current_user.email }}</a></h2>
     currently
     {% if current_user.enabled %}
       <b>enabled</b> <a href="?setenabled=0">disable</a>
     {% else %}
       <b>disabled</b> <a href="?setenabled=1">enable</a>
     {% endif %}
-        
+
     <h3>Users</h3>
     {% for user in all_users %}
-      <a href="/user?email={{ user.email }}">{{ user.email }}</a>
+      <a href="/user/{{ user.email }}">{{ user.email }}</a>
       <br/>
     {% endfor %}
 
-    
+
 {% endblock %}

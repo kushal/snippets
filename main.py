@@ -22,18 +22,28 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp import util
 
 from emails import *
-from model import *    
+from model import *
 
+import functools
+import urllib
 
-class BaseHandler(webapp.RequestHandler):
-    """Obtain user object and pass it into handling logic in subclass."""
-    
-    def get_user(self):
+def authenticated(method):
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        # TODO: handle post requests separately
         user = users.get_current_user()
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
             return None
-    
+        return method(self, *args, **kwargs)
+    return wrapper
+
+class BaseHandler(webapp.RequestHandler):
+    def get_user(self):
+        '''Returns the user object on authenticated requests'''
+        user = users.get_current_user()
+        assert user
+
         userObj = User.all().filter("email =", user.email()).fetch(1)
         if not userObj:
             userObj = User(email=user.email())
@@ -42,25 +52,20 @@ class BaseHandler(webapp.RequestHandler):
             userObj = userObj[0]
         return userObj
 
-    def get(self):
-        user = self.get_user()
-        if user:
-            self.authed_get(user)
-            
-    def post(self):
-        user = self.get_user()
-        if user:
-            self.authed_post(user)
-
 
 class UserHandler(BaseHandler):
     """Show a given user's snippets."""
-    
-    def authed_get(self, user):
-        desired_user = user_from_email(self.request.get('email'))
+
+    @authenticated
+    def get(self, email):
+        user = self.get_user()
+        email = urllib.unquote_plus(email)
+
+        desired_user = user_from_email(email)
+
         snippets = user.snippet_set
         snippets = sorted(snippets, key=lambda s: s.date, reverse=True)
-        
+
         self.response.headers['Content-Type'] = 'text/html'
         template_values = {
                            'current_user' : user,
@@ -74,8 +79,10 @@ class UserHandler(BaseHandler):
 
 class MainHandler(BaseHandler):
     """Show list of all users and acting user's settings."""
-    
-    def authed_get(self, user):
+
+    @authenticated
+    def get(self):
+        user = self.get_user()
         # Update enabled state if requested
         set_enabled = self.request.get('setenabled')
         if set_enabled == '1':
@@ -84,7 +91,7 @@ class MainHandler(BaseHandler):
         elif set_enabled == '0':
             user.enabled = False
             user.put()
-            
+
         # Fetch user list and display
         all_users = User.all().fetch(500)
         self.response.headers['Content-Type'] = 'text/html'
@@ -94,13 +101,13 @@ class MainHandler(BaseHandler):
                            }
 
         path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
-        self.response.out.write(template.render(path, template_values))            
+        self.response.out.write(template.render(path, template_values))
 
 
 def main():
     application = webapp.WSGIApplication(
                                          [('/', MainHandler),
-                                          ('/user', UserHandler),
+                                          ('/user/(.*)', UserHandler),
                                           ('/reminderemail', ReminderEmail),
                                           ('/digestemail', DigestEmail)],
                                           debug=True)
