@@ -40,9 +40,12 @@ class DigestEmail(webapp.RequestHandler):
     
     def get(self):
         all_users = User.all().filter("enabled =", True).fetch(500)
-        d = date_for_retrieval()
+        d = date_for_new_snippet()
         all_snippets = Snippet.all().filter("date =", d).fetch(500)
-        # TODO: Build custom emails
-        body = '\n\n\n'.join([self.__snippet_to_text(s) for s in all_snippets])
         for user in all_users:
-            self.__send_mail(user.email, body)
+            following = compute_following(user, all_users)
+            body = '\n\n\n'.join([self.__snippet_to_text(s) for s in all_snippets if s.user.email in following])
+            if body:
+                self.__send_mail(user.email, body)
+            else:
+                logging.info(user.email + ' not following anybody.')

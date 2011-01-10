@@ -4,14 +4,23 @@
     <h2><a href="/user/{{ current_user.email }}">{{ current_user.email }}</a></h2>
     currently
     {% if current_user.enabled %}
-      <b>enabled</b> <a href="?setenabled=0">disable</a>
+      enabled (<a class="light" href="?setenabled=0">disable</a>)
     {% else %}
-      <b>disabled</b> <a href="?setenabled=1">enable</a>
+      disabled (<a class="light" href="?setenabled=1">enable</a>)
     {% endif %}
-
+    
+    
+    <br/><br/>
+    my tags <form action="/" method="get"><input name="tags" type="text" value="{{ current_user.tags|join:"," }}"/></form>
+    
     <h3>Users</h3>
     {% for user in all_users %}
-      <a href="/user/{{ user.email }}">{{ user.email }}</a>
+      <a href="/user/{{ user.0.email }}">{{ user.0.email }}</a>
+      {% if user.1 %}
+        <a class="light" href="/unfollow?user={{ user.0.email }}&continue=/">unfollow</a>
+      {% else %}
+        <a class="light" href="/follow?user={{ user.0.email }}&continue=/">follow</a>
+      {% endif %}      
       <br/>
     {% endfor %}
 

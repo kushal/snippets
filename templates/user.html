@@ -1,12 +1,35 @@
 {% extends "base.html" %}
 
 {% block body %}
+
+  <div style="float: left; width: 200px">
     <h2>{{ user.email }}</h2>
 
+    {% if following %}
+      <a class="light" href="/unfollow?user={{ user.email }}&continue=/user/{{ user.email }}">unfollow</a>
+    {% else %}
+      <a class="light" href="/follow?user={{ user.email }}&continue=/user/{{ user.email }}">follow</a>
+    {% endif %}
+    
+    <br/></br>
+    <b>Tags</b><br/>
+    {% for tag in tags %}
+        {{ tag.0 }}
+		    {% if tag.1 %}
+		      <a class="light" href="/unfollow?tag={{ tag.0 }}&continue=/user/{{ user.email }}">unfollow</a>
+		    {% else %}
+		      <a class="light" href="/follow?tag={{ tag.0 }}&continue=/user/{{ user.email }}">follow</a>
+		    {% endif %}
+        <br/>    
+    {% endfor %}
+    
+  </div>
+  <div style="float: left; margin-left: 30px">
     {% for snippet in snippets %}
       <b>{{ snippet.date }}</b><br/>
-      {{ snippet.text }}
+      <pre>{{ snippet.text }}</pre>
       <br/></br>
     {% endfor %}
+   </div>
     
 {% endblock %}

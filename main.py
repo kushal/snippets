@@ -38,6 +38,7 @@ def authenticated(method):
         return method(self, *args, **kwargs)
     return wrapper
 
+
 class BaseHandler(webapp.RequestHandler):
     def get_user(self):
         '''Returns the user object on authenticated requests'''
@@ -51,7 +52,12 @@ class BaseHandler(webapp.RequestHandler):
         else:
             userObj = userObj[0]
         return userObj
-
+    
+    def render(self, template_name, template_values):
+        self.response.headers['Content-Type'] = 'text/html'
+        path = os.path.join(os.path.dirname(__file__), 'templates/%s.html' % template_name)
+        self.response.out.write(template.render(path, template_values))
+        
 
 class UserHandler(BaseHandler):
     """Show a given user's snippets."""
@@ -60,23 +66,80 @@ class UserHandler(BaseHandler):
     def get(self, email):
         user = self.get_user()
         email = urllib.unquote_plus(email)
-
         desired_user = user_from_email(email)
-
-        snippets = user.snippet_set
+        snippets = desired_user.snippet_set
         snippets = sorted(snippets, key=lambda s: s.date, reverse=True)
-
-        self.response.headers['Content-Type'] = 'text/html'
+        following = email in user.following 
+        tags = [(t, t in user.tags_following) for t in desired_user.tags]
+         
         template_values = {
                            'current_user' : user,
                            'user': desired_user,
-                           'snippets': snippets
+                           'snippets': snippets,
+                           'following': following,
+                           'tags': tags
                            }
-
-        path = os.path.join(os.path.dirname(__file__), 'templates/user.html')
-        self.response.out.write(template.render(path, template_values))
+        self.render('user', template_values)
 
 
+class FollowHandler(BaseHandler):
+    """Follow a user or tag."""
+    @authenticated
+    def get(self):
+        user = self.get_user()
+        tag = self.request.get('tag')
+        desired_user = self.request.get('user')
+        continue_url = self.request.get('continue')
+        
+        if tag and (tag not in user.tags_following):
+            user.tags_following.append(tag)
+            user.put()
+        if desired_user and (desired_user not in user.following):
+            user.following.append(desired_user)
+            user.put()
+            
+        self.redirect(continue_url)
+
+
+class UnfollowHandler(BaseHandler):
+    """Unfollow a user or tag."""
+    @authenticated
+    def get(self):
+        user = self.get_user()
+        tag = self.request.get('tag')
+        desired_user = self.request.get('user')
+        continue_url = self.request.get('continue')
+        
+        if tag and (tag in user.tags_following):
+            user.tags_following.remove(tag)
+            user.put()
+        if desired_user and (desired_user in user.following):
+            user.following.remove(desired_user)
+            user.put()
+            
+        self.redirect(continue_url)
+        
+
+class TagHandler(BaseHandler):
+    """View this week's snippets in a given tag."""
+    @authenticated
+    def get(self, tag):
+        user = self.get_user()
+        d = date_for_new_snippet()
+        all_snippets = Snippet.all().filter("date =", d).fetch(500)
+        if (tag != 'all'):
+            all_snippets = [s for s in all_snippets if tag in s.user.tags]
+        following = tag in user.tags_following
+
+        template_values = {
+                           'current_user' : user,
+                           'snippets': all_snippets,
+                           'following': following,
+                           'tag': tag
+                           }
+        self.render('tag', template_values)
+
+    
 class MainHandler(BaseHandler):
     """Show list of all users and acting user's settings."""
 
@@ -92,22 +155,31 @@ class MainHandler(BaseHandler):
             user.enabled = False
             user.put()
 
+        # Update tags if sent
+        tags = self.request.get('tags')
+        if tags:
+            user.tags = [s.strip() for s in tags.split(',')]
+            user.put()
+            
         # Fetch user list and display
-        all_users = User.all().fetch(500)
-        self.response.headers['Content-Type'] = 'text/html'
+        raw_users = User.all().order('email').fetch(500)
+        following = compute_following(user, raw_users)
+        all_users = [(u, u.email in following) for u in raw_users]
+
         template_values = {
                            'current_user' : user,
-                           'all_users': all_users
+                           'all_users': all_users                           
                            }
-
-        path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
-        self.response.out.write(template.render(path, template_values))
+        self.render('index', template_values)
 
 
 def main():
     application = webapp.WSGIApplication(
                                          [('/', MainHandler),
                                           ('/user/(.*)', UserHandler),
+                                          ('/tag/(.*)', TagHandler),
+                                          ('/follow', FollowHandler),
+                                          ('/unfollow', UnfollowHandler),
                                           ('/reminderemail', ReminderEmail),
                                           ('/digestemail', DigestEmail)],
                                           debug=True)

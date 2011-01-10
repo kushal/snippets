@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+  <div style="float: left; width: 200px">
+    <h2>{{ tag }}</h2>
+
+    {% if following %}
+      <a class="light" href="/unfollow?tag={{ tag }}&continue=/tag/{{ tag }}">unfollow</a>
+    {% else %}
+      <a class="light" href="/follow?tag={{ tag }}&continue=/tag/{{ tag }}">follow</a>
+    {% endif %}
+    
+  </div>
+  <div style="float: left; margin-left: 30px">
+    {% for snippet in snippets %}
+      <b>{{ snippet.user.email }}</b><br/>
+      <pre>{{ snippet.text }}</pre>
+      <br/></br>
+    {% endfor %}
+   </div>
+    
+{% endblock %}

@@ -3,14 +3,14 @@
 <head>
   <style>
     body { font-family: Courier New, monospaced; font-size: 83% }
-    a.title { color: #CCC; text-decoration: none }
-    a.title:hover { text-decoration: underline }
+    a.light { color: #AAA; text-decoration: none }
+    a.light:hover { text-decoration: underline }
   </style>
    <title>{% block title %}snippets{% endblock %}</title>
 </head>
 
 <body>
-  <h1><a class="title" href="/">snippets</a></h2>
+  <h1><a class="light" href="/">snippets</a></h2>
   {% block body %}
   {% endblock %}
 </body>
