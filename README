@@ -14,5 +14,5 @@ creating your own application on app engine with authentication
 restricted to your custom domain. I would love patches to core
 functionality, though.
 
-Little attention has been paid to making his particularly scaleable,
+Little attention has been paid to making this particularly scalable,
 but it should work for any small or medium company.
