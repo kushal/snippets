@@ -186,7 +186,9 @@ def main():
                                           ('/follow', FollowHandler),
                                           ('/unfollow', UnfollowHandler),
                                           ('/reminderemail', ReminderEmail),
-                                          ('/digestemail', DigestEmail)],
+                                          ('/digestemail', DigestEmail),
+                                          ('/onereminder', OneReminderEmail),
+                                          ('/onedigest', OneDigestEmail)],
                                           debug=True)
     util.run_wsgi_app(application)
 

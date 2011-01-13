@@ -7,7 +7,7 @@ handlers:
 - url: /_ah/mail/snippets@.*fssnippets\.appspotmail\.com 
   script: receive_email.py
   login: admin
-  
+
 - url: .*
   script: main.py
   secure: always
