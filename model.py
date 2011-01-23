@@ -11,6 +11,9 @@ class User(db.Model):
     tags = db.StringListProperty()
     tags_following = db.StringListProperty()
     
+    def pretty_name(self):
+        return self.email.split('@')[0]
+    
 class Snippet(db.Model):
     user = db.ReferenceProperty(User)
     text = db.TextProperty()

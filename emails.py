@@ -48,7 +48,7 @@ class OneDigestEmail(webapp.RequestHandler):
 
     def __snippet_to_text(self, snippet):
         divider = '-' * 30
-        return '%s\n%s\n%s' % (snippet.user.email, divider, snippet.text)
+        return '%s\n%s\n%s' % (snippet.user.pretty_name, divider, snippet.text)
 
     def get(self):
         post(self)

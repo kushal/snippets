@@ -15,27 +15,34 @@
     <br/><br/>
     send your snippets to snippets@fssnippets.appspotmail.com by monday afternoon!
     <br/><br/>        
-    <h3>Users</h3>
-    {% for user in all_users %}
-      <a href="/user/{{ user.0.email }}">{{ user.0.email }}</a>
-      {% if user.1 %}
-        <a class="light" href="/unfollow?user={{ user.0.email }}&continue=/">unfollow</a>
-      {% else %}
-        <a class="light" href="/follow?user={{ user.0.email }}&continue=/">follow</a>
-      {% endif %}      
-      <br/>
-    {% endfor %}
-    <br/><br/>        
-    <h3>Tags</h3>
-    {% for tag in all_tags %}
-      <a href="/tag/{{ tag.0 }}">{{ tag.0 }}</a>
-      {% if tag.1 %}
-        <a class="light" href="/unfollow?tag={{ tag.0 }}&continue=/">unfollow</a>
-      {% else %}
-        <a class="light" href="/follow?tag={{ tag.0 }}&continue=/">follow</a>
-      {% endif %}      
-      <br/>
-    {% endfor %}
+    <table cellspacing=20>
+      <tr>
+        <td valign="top">
+			    <h3>Users</h3>
+			    {% for user in all_users %}
+			      <a href="/user/{{ user.0.email }}">{{ user.0.pretty_name }}</a>
+			      {% if user.1 %}
+			        ✓ <a class="light" href="/unfollow?user={{ user.0.email }}&continue=/">unfollow</a>
+			      {% else %}
+			        <a class="light" href="/follow?user={{ user.0.email }}&continue=/">follow</a>
+			      {% endif %}      
+			      <br/>
+			    {% endfor %}
+		     </td>
+				 <td valign="top">        
+  			   <h3>Tags</h3>
+	 		     {% for tag in all_tags %}
+			       <a href="/tag/{{ tag.0 }}">{{ tag.0 }}</a>
+			       {% if tag.1 %}
+			         ✓ <a class="light" href="/unfollow?tag={{ tag.0 }}&continue=/">unfollow</a>
+			       {% else %}
+			         <a class="light" href="/follow?tag={{ tag.0 }}&continue=/">follow</a>
+		        {% endif %}
+		        <br/>
+		      {% endfor %}      
+		      </td>
+		    </tr>
+		  </table>
 
 
 {% endblock %}

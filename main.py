@@ -54,7 +54,7 @@ class BaseHandler(webapp.RequestHandler):
         return userObj
     
     def render(self, template_name, template_values):
-        self.response.headers['Content-Type'] = 'text/html'
+        #self.response.headers['Content-Type'] = 'text/html'
         path = os.path.join(os.path.dirname(__file__), 'templates/%s.html' % template_name)
         self.response.out.write(template.render(path, template_values))
         
