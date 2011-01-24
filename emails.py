@@ -62,6 +62,6 @@ class OneDigestEmail(webapp.RequestHandler):
         logging.info(all_snippets)
         body = '\n\n\n'.join([self.__snippet_to_text(s) for s in all_snippets if s.user.email in following])
         if body:
-            self.__send_mail(user.email, body)
+            self.__send_mail(user.email, 'https://fssnippets.appspot.com\n\n' + body)
         else:
             logging.info(user.email + ' not following anybody.')

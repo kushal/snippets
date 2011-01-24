@@ -2,7 +2,8 @@
 <html>
 <head>
   <style>
-    body { font-family: Courier New, monospaced; font-size: 83% }
+    body.x { font-family: Courier New, monospaced; }
+    body {font-family: Helvetica; }
     a.light { color: #AAA; text-decoration: none }
     a.light:hover { text-decoration: underline }
   </style>
@@ -10,7 +11,7 @@
 </head>
 
 <body>
-  <h1><a class="light" href="/">snippets</a></h2>
+  <h1><a class="light" style="color: #2398C9" href="/">snippets</a></h2>
   {% block body %}
   {% endblock %}
 </body>

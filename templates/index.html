@@ -1,18 +1,23 @@
 {% extends "base.html" %}
 
 {% block body %}
-    <h2><a href="/user/{{ current_user.email }}">{{ current_user.email }}</a></h2>
+
+<table><tr><td>
+    <h2><a href="/user/{{ current_user.email }}">{{ current_user.pretty_name }}</a></h2>
+    </td><td><div style="width: 30px"></div></td><td style="font-size: 83%">
     currently
     {% if current_user.enabled %}
       enabled (<a class="light" href="?setenabled=0">disable</a>)
     {% else %}
       disabled (<a class="light" href="?setenabled=1">enable</a>)
     {% endif %}
+    <form action="/" method="get">
     
+    my tags <input name="tags" type="text" value="{{ current_user.tags|join:"," }}"/></form>
     
-    <br/><br/>
-    my tags <form action="/" method="get"><input name="tags" type="text" value="{{ current_user.tags|join:"," }}"/></form>
-    <br/><br/>
+    </td></tr></table>
+    <br/>
+
     send your snippets to snippets@fssnippets.appspotmail.com by monday afternoon!
     <br/><br/>        
     <table cellspacing=20>

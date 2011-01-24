@@ -12,7 +12,7 @@
     {% endif %}
     
   </div>
-  <div style="float: left; margin-left: 30px">
+  <div style="float: left; margin-left: 30px; max-width: 600px">
     {% for snippet in snippets %}
       <b>{{ snippet.user.pretty_name }}</b><br/>
       <pre>{{ snippet.text }}</pre>
