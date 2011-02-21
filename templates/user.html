@@ -10,7 +10,7 @@
     {% else %}
       <a class="light" href="/follow?user={{ user.email }}&continue=/user/{{ user.email }}">follow</a>
     {% endif %}
-    
+
     <br/></br>
     <b>Tags</b><br/>
     {% for tag in tags %}
@@ -20,16 +20,16 @@
 		    {% else %}
 		      <a class="light" href="/follow?tag={{ tag.0 }}&continue=/user/{{ user.email }}">follow</a>
 		    {% endif %}
-        <br/>    
+        <br/>
     {% endfor %}
-    
+
   </div>
   <div style="float: left; margin-left: 30px; max-width: 600px">
     {% for snippet in snippets %}
       <b>{{ snippet.date }}</b><br/>
-      <pre>{{ snippet.text }}</pre>
+      <pre>{{ snippet.text|urlize }}</pre>
       <br/></br>
     {% endfor %}
    </div>
-    
+
 {% endblock %}
