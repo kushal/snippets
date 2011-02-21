@@ -1,3 +1,3 @@
 queue:
 - name: default
-  rate: 20/m
+  rate: 5/m
