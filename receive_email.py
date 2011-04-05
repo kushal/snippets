@@ -16,6 +16,9 @@ class ReceiveEmail(InboundMailHandler):
     def receive(self, message):
         user = user_from_email(email.utils.parseaddr(message.sender)[1])
         for content_type, body in message.bodies('text/plain'):
+            # http://stackoverflow.com/questions/4021392/how-do-you-decode-a-binary-encoded-mail-message-in-python
+            if body.encoding == '8bit':
+                body.encoding = '7bit'
             content = body.decode()
 
             sig_pattern = re.compile(r'^\-\-\s*$', re.MULTILINE)
