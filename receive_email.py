@@ -25,7 +25,7 @@ class ReceiveEmail(InboundMailHandler):
             split_email = re.split(sig_pattern, content)
             content = split_email[0]
 
-            reply_pattern = re.compile(r'^On.*foursquare.com.*wrote:$', re.MULTILINE)
+            reply_pattern = re.compile(r'^On.*at.*snippets', re.MULTILINE)
             split_email = re.split(reply_pattern, content)
             content = split_email[0]
 
